@@ -1,4 +1,4 @@
-# lukasz-skills
+# lmerynda-skills
 
 Agent skills for how I work with Claude Code and Codex.
 
@@ -6,17 +6,17 @@ Agent skills for how I work with Claude Code and Codex.
 
 | skill | use it when |
 |---|---|
-| `lukasz-mode` | you want an agent to work in my style: long autonomous runs, lots of parallel subagents, live verification, a commit per feature with push only on request, and status you can resume from at a glance. |
+| `lmerynda-mode` | you want an agent to work in my style: long autonomous runs, lots of parallel subagents, live verification, a commit per feature with push only on request, and status you can resume from at a glance. |
 
-`lukasz-mode` was drafted by mining about 800 of my own prompts across Claude Code and Codex. Only patterns that showed up repeatedly made it in.
+`lmerynda-mode` was drafted by mining about 800 of my own prompts across Claude Code and Codex. Only patterns that showed up repeatedly made it in.
 
-It only runs when invoked: `/lukasz-mode` in Claude Code, `$lukasz-mode` in Codex.
+It only runs when invoked: `/lmerynda-mode` in Claude Code, `$lmerynda-mode` in Codex.
 
 ## Install
 
 ```sh
-git clone https://github.com/lmerynda/lukasz-skills.git
-cd lukasz-skills
+git clone https://github.com/lmerynda/lmerynda-skills.git
+cd lmerynda-skills
 ./install.sh
 ```
 
@@ -25,7 +25,7 @@ This copies each skill into `~/.claude/skills/` and `~/.codex/skills/`. Start a 
 Or with the [skills CLI](https://skills.sh):
 
 ```sh
-npx skills add lmerynda/lukasz-skills --skill lukasz-mode
+npx skills add lmerynda/lmerynda-skills --skill lmerynda-mode
 ```
 
 ## Credit

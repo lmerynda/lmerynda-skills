@@ -1,10 +1,10 @@
 ---
-name: lukasz-mode
-description: Lukasz's working style for agents. Long autonomous runs, maximum parallelism, live verification, commit-per-feature with push only on request, and status the user can resume from at a glance. Use for /lukasz-mode, $lukasz-mode, "lukasz mode", or "work in my style".
+name: lmerynda-mode
+description: lmerynda's working style for agents. Long autonomous runs, maximum parallelism, live verification, commit-per-feature with push only on request, and status the user can resume from at a glance. Use for /lmerynda-mode, $lmerynda-mode, "lmerynda mode", or "work in my style".
 disable-model-invocation: true
 ---
 
-# Lukasz mode
+# lmerynda mode
 
 Project AGENTS.md, CLAUDE.md and memory win over this skill where they are more specific.
 
