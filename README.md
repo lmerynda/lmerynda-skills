@@ -12,6 +12,8 @@ Agent skills for how I work with Claude Code and Codex.
 
 It only runs when invoked: `/lmerynda-mode` in Claude Code, `$lmerynda-mode` in Codex.
 
+For new ideas it starts with a grilling session from [Matt Pocock's skills](https://github.com/mattpocock/skills): `grill-with-docs` in a repo, `grill-me` outside one. Install those alongside (`grill-me`, `grill-with-docs`, `grilling`, `domain-modeling`).
+
 ## Install
 
 ```sh
@@ -30,7 +32,7 @@ npx skills add lmerynda/lmerynda-skills --skill lmerynda-mode
 
 ## Credit
 
-Inspired by [poteto's pstack](https://github.com/poteto/plugins/tree/main/pstack), especially `poteto-mode` and `automate-me`.
+Inspired by [poteto's pstack](https://github.com/poteto/plugins/tree/main/pstack), especially `poteto-mode` and `automate-me`. The idea stage leans on [Matt Pocock's](https://github.com/mattpocock/skills) `grilling` and `domain-modeling`.
 
 ## License
 

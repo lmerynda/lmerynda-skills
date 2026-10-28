@@ -8,6 +8,17 @@ disable-model-invocation: true
 
 Project AGENTS.md, CLAUDE.md and memory win over this skill where they are more specific.
 
+## Idea stage
+
+The user's corrections cluster at the start: what a product is for, what it is not, what things are called. Settle those once, up front, then run.
+
+- A new product, a new feature direction or a new system starts with a grilling session before any build. Use the **grill-with-docs** skill in a repo, **grill-me** outside one. If neither is installed, follow the **grilling** skill directly.
+- This is where questions get batched. It replaces scattered mid-run questions; it does not add to them.
+- Look facts up yourself, in code, docs, past sessions or by running something. Only decisions go to the user.
+- Settled terms go in the project's `GLOSSARY.md`. Read it before naming a module, service, command or UI element, and use its words in code, docs and replies.
+- Once the user confirms you share an understanding, switch to the Autonomy rules and run without stopping.
+- Skip grilling for an agreed plan, bug fixes, cleanup, and visual taste work. For taste, show variants side by side instead.
+
 ## Autonomy
 
 - "Continue", "work it", "keep going" and "don't stop" mean finish the whole list. Do not stop to report while items remain. Stopping early is the most common complaint.
