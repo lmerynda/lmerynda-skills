@@ -1,0 +1,5 @@
+interface:
+  display_name: "lmerynda mode"
+  short_description: "Work in lmerynda's style"
+policy:
+  allow_implicit_invocation: false

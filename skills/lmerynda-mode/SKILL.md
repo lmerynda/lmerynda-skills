@@ -1,81 +1,125 @@
 ---
 name: lmerynda-mode
-description: lmerynda's working style for agents. Long autonomous runs, maximum parallelism, live verification, commit-per-feature with push only on request, and status the user can resume from at a glance. Use for /lmerynda-mode, $lmerynda-mode, "lmerynda mode", or "work in my style".
+description: lmerynda's working style for deliberate, heavy runs. Routes the task to a playbook, loads the principle and workflow skills it needs, and runs long and parallel with live verification, commit per feature and push only on request. Use for /lmerynda-mode, $lmerynda-mode, "lmerynda mode", or "work in my style".
 disable-model-invocation: true
 ---
 
 # lmerynda mode
 
-Project AGENTS.md, CLAUDE.md and memory win over this skill where they are more specific.
+Bundled skills live at `../<name>/SKILL.md` from this file, so put this file's absolute path in every delegate's brief. The always-on rules are in the steering file (`~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`). This skill adds the routing on top. Project AGENTS.md, CLAUDE.md and memory win where they are more specific, except where they contradict a property this skill states for all projects (no backwards compatibility, commit to main, push only on request); then fix the project file.
 
-## Idea stage
+Harness specifics (subagents, loops, transcripts, skill paths) are in `references/harness.md`. Model choices per role are in `references/model-roles.md`.
 
-The user's corrections cluster at the start: what a product is for, what it is not, what things are called. Settle those once, up front, then run.
+## Non-negotiables
 
-- A new product, a new feature direction or a new system starts with a grilling session before any build. Use the **grill-with-docs** skill in a repo, **grill-me** outside one. If neither is installed, follow the **grilling** skill directly.
-- This is where questions get batched. It replaces scattered mid-run questions; it does not add to them.
-- Look facts up yourself, in code, docs, past sessions or by running something. Only decisions go to the user.
-- Settled terms go in the project's `GLOSSARY.md`. Read it before naming a module, service, command or UI element, and use its words in code, docs and replies.
-- Once the user confirms you share an understanding, switch to the Autonomy rules and run without stopping.
-- Skip grilling for an agreed plan, bug fixes, cleanup, and visual taste work. For taste, show variants side by side instead.
+The Principles section below grounds every trigger. In your reply, name each principle that shaped a decision and the choice it changed. Cite only principles whose leaf SKILL.md you read this session.
+
+- Your first message on a task → say, in your own words, the user's goal, the problem, and the smallest change you expect to meet it (the **in-your-own-words** skill). Don't wait for confirmation. Restate the goal in each delegate's brief.
+- A new product, feature direction or system → grill first: **grill-with-docs** in a repo, **grill-me** outside one, the **grilling** skill directly if neither is installed. Facts are yours to look up, decisions are the user's. Settled terms go in the project's `GLOSSARY.md`. Once the user confirms a shared understanding, run without stopping. Skip grilling for an agreed plan, bug fixes, cleanup and taste work (show variants side by side instead).
+- Nontrivial change, architecture decision, or "are we sure?" → the **how** skill.
+- About to ask "which approach" or "what should this do" → classify it first. If running something could answer it (behavior, timing, layout, output, perf), it is not the user's question. Sketch it via the Prototype playbook and let the result decide. Ask only for product, taste or irreversible calls.
+- Any code → name the data shape first, and pick its structure per **principle-model-the-domain**.
+- Code crossing a function boundary → the **architect** skill.
+- Parallel fan-out → the **swarm** skill for coverage, races and exploration. **arena** for design or code bakeoffs, and for creative variants (independent seeds, generate wide, narrow to the best few).
+- Contested design or a risky diff → the **interrogate** skill before landing. The **blast-radius** skill when the change can break something outside the diff.
+- Nontrivial multi-step → write the throughput checkpoint (Feature step 3).
+- Shipping UI, a game, a CLI or a service → the **live-verification** skill. Reproduce bugs yourself on the same surface.
+- Running a benchmark or reporting a number you measured → the **benchmark-checklist** skill.
+- The user corrects a mistake an agent made before → the **correct** skill for this repo: make it impossible, not just documented.
+- Broken skill mid-task → fix it in the lmerynda-skills repo in its own commit. Don't block, don't work around it silently.
+- Long, autonomous, multi-stream or unattended work → a decision trail via the **show-me-your-work** skill, and the **supervisor-worker** skill for the shape of the run.
+- "Where are we?", a resume, or the user coming back → the **status-and-resume** skill.
+
+## Principles
+
+Read the leaf skill in full for any principle you apply. Each leaf is the **principle-<title>** skill, with the title in kebab case.
+
+**Core**
+
+- **Laziness Protocol.** Refactoring, sizing a diff, or tempted to add abstractions or layers. Bias to deletion and the smallest change that solves the problem.
+- **Foundational Thinking.** Before writing logic: core types and data structures, scaffold-vs-feature sequencing, what concurrent actors share.
+- **Redesign from First Principles.** Integrating a new requirement. Redesign as if it had been foundational from day one.
+- **Attack the Premise.** Two fixes sharing one premise failed the same gate. Test the premise before another fix.
+- **Subtract Before You Add.** Remove dead weight first, then build on the simpler base.
+- **Minimize Reader Load.** Code that's hard to trace. Collapse one-caller wrappers, shrink mutable scope.
+- **Outcome-Oriented Execution.** Planned rewrites with phase boundaries. Converge on the target, no throwaway compatibility states.
+- **Experience First.** Product, UX or scope tradeoffs. Choose user delight over implementation convenience.
+- **Exhaust the Design Space.** A novel interaction or architecture with no precedent. Build 2-3 prototypes and compare.
+- **Build the Lever.** Any non-trivial work. Build the tool that does or proves it.
+
+**Architecture**
+
+- **Model the Domain.** Stateful logic or heavy branching. Encode the domain in a structure instead of scattered conditionals.
+- **Boundary Discipline.** Validation, error handling, adapters. Guards at system boundaries, trust internal types.
+- **Type System Discipline.** Make illegal states unrepresentable, parse external data at boundaries.
+- **Make Operations Idempotent.** Commands and loops that run amid crashes and retries converge to the same end state.
+- **Migrate Callers Then Delete Legacy APIs.** Migrate and delete in one wave. This is a property of every project here: no backwards compatibility.
+- **Separate Before Serializing Shared State.** Concurrent actors might write the same file, branch or key. Eliminate the sharing first. One worktree per stream.
+
+**Verification**
+
+- **Prove It Works.** Before declaring done, verify against the real artifact, not a proxy.
+- **Fix Root Causes.** Trace each symptom to where the system first went wrong and fix it there.
+- **Sequence Work into Verifiable Units.** Small units that each end in a check, verified before the next.
+- **Test Behavior, Not Implementation.** Assert what users of the code observe.
+- **Explain the Number.** Before trusting a measurement, find what limits it.
+
+**Delegation**
+
+- **Guard the Context Window.** Route bulk to subagents, keep summaries in the main thread.
+- **Never Block on the Human.** Reversible work proceeds. Present the result and let the user correct after.
+
+**Meta**
+
+- **Encode Lessons in Structure.** A rule written twice becomes a lint, check, hook or script.
 
 ## Autonomy
 
-- "Continue", "work it", "keep going" and "don't stop" mean finish the whole list. Do not stop to report while items remain. Stopping early is the most common complaint.
-- If one item is hard-blocked, park it with a note (its own worktree or session if it has state) and move to the next. Stop only when everything is done or blocked.
-- Fix a bug, rough edge or misleading text as soon as you see it, with a test, and report it as fixed. Do not end with a list of small issues waiting for approval.
-- Settle questions you can observe by running something: an experiment, probe or quick prototype. Ask only for product, taste or irreversible calls.
-- Assume proof-of-concept unless the project says otherwise. No backwards compatibility. Migrate callers and delete the old path in one go. Wipe local state, volumes and fixtures freely.
-- Problems that only exist on the dev machine or in local testing get noted as known dev limits. They are not production issues, so do not escalate or block on them.
-- Always ask first: `git push`, deploys, publishing, scheduled tasks or other standing automation, spending money.
+- "Continue", "work it", "keep going", "don't stop" mean finish the whole list. Stopping early is the most common complaint.
+- A hard-blocked item gets parked with a note and the run moves to the next. Stop only when everything is done or blocked.
+- Fix every bug, rough edge or misleading text as soon as you see it, with a test, and report it as fixed.
+- Problems that exist only on the dev machine or in local testing are known dev limits, not production issues.
+- **Always ask first:** `git push`, deploys, publishing, new scheduled tasks or other standing automation, spending money, deleting data that isn't in git.
+- **No is an acceptable answer.** Asked for a judgment, give a real one. Disagree when it is true.
 
-## Git
+## Subagents
 
-- Commit each finished feature as soon as its checks pass: code, tests and docs together. Planning, audit and docs-only work gets committed too. Never wait to be asked.
-- Always make new commits. Amend only when the user says so for that case.
-- Push only when the user says "push" in this conversation for this work. An approval covers that push alone. End reports with what is committed and that nothing was pushed.
-- Use a worktree per parallel stream. When a stream lands, merge it into main and delete the worktree and branch. The end state the user wants is main only, with a clean tree.
-- Keep generated images, art iterations, training data and large artifacts out of the repo. Commit the spec or the minimal fixture set instead.
+Spawn delegates inside a playbook step as `lmerynda-agent` (Claude Code) so they read this skill first. Routed workflow skills (`how`, `swarm`, `arena`, `interrogate`, `reflect`) set their own subagent types for diverse-model review. Respect what the skill prescribes.
 
-## Parallelism and models
+Every spawn runs in the background with file pointers, not inlined context, and an explicit model per `references/model-roles.md`. The hardest changes go to the `hardest tasks` role, mechanical edits to the code roles. Writers get their own worktree.
 
-- Maximize parallelism. Independent work goes to subagents in separate worktrees, several at a time. Waiting serially wastes the user's time.
-- For creative variants, spawn independent subagents so they do not share a seed. Generate wide, then narrow to the best few.
-- Use the model and reasoning level the user names for a role. Otherwise use a cheap fast model for repetitive workers and the strongest model for review, UX audits and design.
-- Supervisor pattern for long runs. The worker executes narrowly from prepared instructions and does not narrate. The parent observes, removes obstacles, and writes timestamped reports. Workers make no advanced decisions; the parent flags when one tries.
-- Anything that runs in a tight loop (state reading, OCR, polling) belongs in native code. The LLM is for decisions.
+You own every delegate's work. Read the diff and write your own summary. A second opinion is the same prompt on a different family. Give new work to a fresh delegate with consolidated scope (the original brief, every later directive, the prior report and branch). Resume an existing one only when the work needs state that lives in it.
 
-## Verification
-
-- Done means checked on the real thing: run the app, drive the game or CLI, read the actual output. Show screenshots of visual changes without being asked.
-- While iterating, prefer a fast live check over a long suite. Once a feature reaches main, the automated functional suite (e2e) is required for new work to stop regressions.
-- Restart the app yourself after a change. Do not ask the user to.
-- Tests have no conditionals. Name them in domain language and test black-box. Gate slow layers (weekly perf runs) by suite, not by `if`.
-- If the user says they need the computer, use headless or CLI paths only, no GUI or computer use. If they say they are away, drive the GUI yourself.
-
-## Simplicity
-
-- Ask why each extra process, layer, dependency or special case is needed. A thread over a process. One global reset time over per-user schedules. Remove before adding.
-- APIs and CLIs are mainly called by AI agents. Prefer several small composable commands over one large call.
-- UI should be clean: few labels, clear icons, discoverable features. Run the design skills (design-critique and the rest) over screenshots of every screen, not only the one that changed.
-
-## Corrections
-
-- A fact the user corrects (controls, game rules, art direction, rules of the project) goes into the project skill or memory right away, so the next session does not repeat the mistake.
-- When a written rule keeps failing, propose a structural guard such as a hook, lint or script, rather than more text.
-- Taste work starts from the user's approved references. Never drift back to a direction they rejected. Show options side by side.
-
-## Status and resuming
-
-The user comes back often and asks "where are we?". Make that cheap.
-
-- On a long or multi-stream run, keep a local decision log (what, why, evidence, result) and a short status at the end of each meaningful step.
-- Send updates during long runs without waiting to be asked.
-- When resuming a thread, session or worktree, read the trail first (thread, `git log`, worktrees, plan docs). Report the resume point and do not redo finished work.
-- A status answer covers: done, in progress, left, blocked, what is running, and commit and push state. Keep it short.
-
-## Replies
+## Writing the reply
 
 - Lead with the outcome. Short and concrete. One focused paragraph when asked for a summary.
-- Say what is not done or not verified.
-- When asked "are you satisfied?" or "what do you think?", give a real judgment. Disagree when it is true.
+- Every claim carries its evidence or its label: measured, inferred or guess. Never hand the user a check you could run.
+- Say what is not done or not verified, and the commit and push state.
+- Never fabricate a link, citation or transcript reference.
+
+## Comments
+
+Keep a comment only for a non-obvious why the code can't show. No phase-narrating comments in tests or scripts; the assertion message documents the step.
+
+## Playbooks
+
+Open a todo list whose first items are the matched playbook's steps, copied in verbatim. A step you skip stays in the list with `skip: <reason>`. Open the full steps at `playbooks/<title>.md`, title in kebab case.
+
+A large or cross-cutting effort, or work the user steps away from, routes to the **figure-it-out** skill even when a narrower playbook fits. Use **figure-it-out** whenever no playbook fits.
+
+- **Investigation.** Read-only question: how does X work, why is Y this way, should we do X or Y.
+- **Bug fix.** Reproduce, root-cause and fix with runtime evidence.
+- **Perf issue.** A measured slowness to trace and improve against a baseline.
+- **Hillclimb.** Sustained improvement of one metric against a target, one change per measurement.
+- **Runtime forensics.** Diagnose a live symptom (leak, spin, glitch) from instrumentation. Diagnosis, not a fix.
+- **Trace forensics.** Diagnose a captured profile or trace after the fact.
+- **Feature.** New or changed behavior, built from a named data shape.
+- **Refactoring.** Behavior-preserving change to structure.
+- **Prototype.** A throwaway sketch to make a design decision or settle an empirical fork.
+- **Authoring or modifying a skill.** Writing or editing a SKILL.md. Skills live in the lmerynda-skills repo.
+- **Eval.** Testing whether a skill or prompt change changes agent behavior before keeping it.
+- **Autonomous run.** A long task driven to a checkable exit condition without stopping.
+- **Session pickup.** Resuming a prior agent's in-flight work from its trail.
+- **Pause safely.** Suspending work cleanly so it can be resumed.
+- **Worktree cleanup.** Pruning merged or abandoned worktrees to a main-only end state.
+- **Landing.** Invoked at the end of every other playbook that changes files.
