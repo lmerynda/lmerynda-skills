@@ -1,18 +1,26 @@
 # lmerynda-skills
 
-Agent skills for how I work with Claude Code and Codex.
+How I work with Claude Code and Codex, as an always-on steering file, a router skill, granular skills, and a feedback loop that keeps improving them.
 
-## Skills
+## Layers
 
-| skill | use it when |
-|---|---|
-| `lmerynda-mode` | you want an agent to work in my style: long autonomous runs, lots of parallel subagents, live verification, a commit per feature with push only on request, and status you can resume from at a glance. |
+| layer | what | loaded |
+|---|---|---|
+| Steering | `core/steering.md`: autonomy, git, verification, design, Windows gotchas | every session, via `~/.claude/CLAUDE.md` and `~/.codex/AGENTS.md` |
+| Router | `lmerynda-mode`: maps a task to a playbook and the skills it needs | by hand: `/lmerynda-mode`, `$lmerynda-mode` in Codex |
+| Granular skills | `git-discipline`, `live-verification`, `status-and-resume`, `supervisor-worker`, 24 `principle-*` skills | by the agent, when a description matches |
+| Workflow skills | `how`, `architect`, `arena`, `swarm`, `interrogate`, `blast-radius`, `figure-it-out`, `recall`, `ketchup`, `show-me-your-work`, `correct`, `reflect`, `automate-me`, and more | by hand or routed from a playbook |
+| Feedback loop | `reflect-sweep` nightly, `reflect-digest` weekly | scheduled tasks in the Claude desktop app |
 
-`lmerynda-mode` was drafted by mining about 800 of my own prompts across Claude Code and Codex. Only patterns that showed up repeatedly made it in.
+Terms are defined in [GLOSSARY.md](GLOSSARY.md).
 
-It only runs when invoked: `/lmerynda-mode` in Claude Code, `$lmerynda-mode` in Codex.
+## Feedback loop
 
-For new ideas it starts with a grilling session from [Matt Pocock's skills](https://github.com/mattpocock/skills): `grill-with-docs` in a repo, `grill-me` outside one. Install those alongside (`grill-me`, `grill-with-docs`, `grilling`, `domain-modeling`).
+1. Every night at 03:00, `reflect-sweep` mines the Claude Code and Codex conversations that have been idle for 2 hours or more (`tools/extract.js`), looking for repeated corrections and friction.
+2. A finding becomes a change only when 2 or more conversations show it, or 1 when an agent broke a hard rule (an unrequested push, for example). Each change lands on its own local `reflect/<date>-<slug>` branch, at most 3 a night, made in a separate worktree (`F:\projects\lmerynda-skills-reflect`). A finding that matches an open branch adds evidence to it instead.
+3. Every Sunday at 09:00, `reflect-digest` lists the open branches with why, evidence and diffstat. Reply "merge 1, 3, drop 2" and it merges, reinstalls and cleans up.
+
+Branches stay local. The evidence log lives in `~/.lmerynda-skills/`, outside the repo, so pushing a branch publishes the rule and never the conversation behind it.
 
 ## Install
 
@@ -22,18 +30,20 @@ cd lmerynda-skills
 ./install.sh
 ```
 
-This copies each skill into `~/.claude/skills/` and `~/.codex/skills/`. Start a new session afterwards so the skill gets picked up.
+This writes the steering block into `~/.claude/CLAUDE.md` and `~/.codex/AGENTS.md` (other content in those files is kept), copies every skill into `~/.claude/skills/` and `~/.codex/skills/`, and installs the `lmerynda-agent` delegate into `~/.claude/agents/`. Start a new session afterwards.
 
-Or with the [skills CLI](https://skills.sh):
+The idea-stage grilling uses [Matt Pocock's skills](https://github.com/mattpocock/skills): install `grill-me`, `grill-with-docs`, `grilling` and `domain-modeling` alongside.
 
-```sh
-npx skills add lmerynda/lmerynda-skills --skill lmerynda-mode
-```
+## Tools
+
+- `tools/extract.js`: typed prompts from Claude Code and Codex transcripts, with the agent text each one answered.
+- `tools/check-skills.js`: validates frontmatter, file references and skill cross-links. Run before every commit.
+- `tools/port-pstack.js`: re-ports pstack from upstream.
 
 ## Credit
 
-Inspired by [poteto's pstack](https://github.com/poteto/plugins/tree/main/pstack), especially `poteto-mode` and `automate-me`. The idea stage leans on [Matt Pocock's](https://github.com/mattpocock/skills) `grilling` and `domain-modeling`.
+Most skills are adapted from [poteto's pstack](https://github.com/cursor/plugins/tree/main/pstack) (MIT). See [NOTICE.md](NOTICE.md) for what was ported and how. The idea stage leans on [Matt Pocock's](https://github.com/mattpocock/skills) `grilling` and `domain-modeling`.
 
 ## License
 
-MIT
+MIT. Ported pstack content stays under its own MIT license in `LICENSE-pstack`.
