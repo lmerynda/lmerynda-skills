@@ -47,6 +47,7 @@ Always-on rules for every project. Source: `F:\projects\lmerynda-skills\core\ste
 
 - Never round-trip source files through PowerShell `Get-Content -Raw` / `Set-Content`: it double-encodes non-ASCII and adds a BOM. Use the Edit tool, or node/sed from Bash.
 - Before removing a worktree that has a `node_modules` junction, delete the junction itself first (`cmd //c rmdir <path>\node_modules`). `git worktree remove --force` follows it and empties the target.
+- Windows Firewall rules match one exact .exe path. Build or package runnable apps to one fixed output folder, never per worktree, or every copy prompts again. Never click or change a firewall prompt yourself.
 - Keep temp paths short for git exports and deep trees; long paths hit WinError 206 and "Filename too long" (use `git -c core.longpaths=true`).
 
 ## Skills

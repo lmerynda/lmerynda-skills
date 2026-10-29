@@ -18,7 +18,7 @@ description: "Commit, merge and push rules for lmerynda's repos. Use whenever yo
 ## Worktrees
 
 - One worktree per parallel stream or writing subagent. Never two writers in one checkout.
-- When a stream lands: merge its branch into main, remove the worktree, delete the branch. The end state the user wants is main only with a clean tree.
+- When a stream lands: close every process bound to its worktree (Unity or other Editors, dev servers, game builds), merge its branch into main, remove the worktree, delete the branch. An Editor left open on a worktree holds its files and steals the foreground from sessions that drive the desktop. The end state the user wants is main only with a clean tree.
 - On Windows, delete any `node_modules` junction inside the worktree first (`cmd //c rmdir <path>\node_modules`, then confirm it is gone). `git worktree remove --force` follows junctions and empties the target.
 - For a full cleanup, follow the Worktree cleanup playbook in **lmerynda-mode**.
 
