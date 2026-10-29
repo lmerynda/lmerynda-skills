@@ -8,6 +8,7 @@ description: "Commit, merge and push rules for lmerynda's repos. Use whenever yo
 ## Commit
 
 - A feature is finished when it works live and its targeted tests pass. Commit it then, before starting the next one: code, tests and README or docs in the same commit.
+- When the live surface is unavailable (the app or game is closed, the user is away, the device is busy), commit once the code and targeted tests are done. Write `not verified live` in the commit body and the report, and run the live check when the surface is back. Never let finished features pile up uncommitted waiting for it.
 - Planning, audit, proposal and docs-only work gets committed too.
 - Stage only the files this task produced, by path. Never `git add -A` in a tree other sessions share.
 - Never commit credentials, private transcripts, caches, generated images, art iterations, training data or large artifacts. Commit the spec, findings or minimal fixture derived from them. Images go to the scratchpad or an ignored `target/` folder.
