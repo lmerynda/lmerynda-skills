@@ -18,6 +18,7 @@ Runs unattended. Never ask the user anything, never push, never touch the main c
   - `evidence.tsv`: `ts`, `branch`, `session`, `project`, `tool`, `note`. One row per conversation supporting a branch.
   - `project-lessons.tsv`: `ts`, `project`, `lesson`, `sessions`.
   - `rejected.tsv`: `ts`, `branch`, `problem`. Findings the user dropped in a review.
+  - `candidates.tsv`: `slug`, `first_seen`, `problem`, `routing`, `sessions` (comma-separated). Findings not landed yet, because they had too few sessions or missed the nightly cap. Evidence adds up here across nights.
 
 ## 1. Prepare
 
@@ -29,6 +30,7 @@ Runs unattended. Never ask the user anything, never push, never touch the main c
 
 - Open branches: `git -C REPO branch --list 'reflect/*' --no-merged main`. For each, read its commit body (`git -C REPO log -1 --format=%B <branch>`), which holds Problem and Proposal, and count its distinct sessions in `evidence.tsv`.
 - Rejected findings from `rejected.tsv`.
+- Candidates from `candidates.tsv`.
 - The current skill list (`ls REPO/skills`) and `REPO/core/steering.md`.
 
 ## 3. Mine
@@ -51,10 +53,11 @@ One synthesizer subagent on the `reflect judgment, divergent, synthesizer` role,
 > Replace the Skill-was-used criterion with these rules.
 > - Evidence: accept a global finding only when 2 or more distinct sessions show it. One session is enough when an agent broke a hard rule: pushed, deployed or published without being asked, amended or rewrote history, committed secrets, or deleted data outside git.
 > - Dedupe: a finding that matches an open branch is not new. List it as `add evidence: <branch>` with its sessions.
+> - Candidates: a finding that matches a candidate keeps the candidate's slug, and its session count is the union of both. A candidate with no new evidence tonight still competes on its stored sessions.
 > - Rejected: a finding matching a rejected one is dropped unless 3 or more new sessions show it. Then accept it and say it was dropped before.
 > - Project findings go to a Project lessons list (project, lesson, sessions), not to skill edits.
 > - Prefer a structural fix (a check in `tools/`, a script, a stronger rule placement) over more prose, per the encode-lessons principle.
-> - Output at most 3 Accepted rows, ranked by distinct sessions, each with a kebab-case slug.
+> - Output at most 3 Accepted rows, ranked by distinct sessions, each with a kebab-case slug. List every other finding that is durable but below the threshold or over the cap under Candidates, with slug, problem, routing and sessions.
 
 ## 5. Land each accepted row on its own branch
 
@@ -66,7 +69,7 @@ For each Accepted row, in rank order:
 4. Commit with subject `reflect: <one line>` and a body of `Problem: ...`, `Proposal: ...`, `Evidence: <N> sessions in <projects>`. No attribution lines.
 5. Append one `evidence.tsv` row per supporting session.
 
-Then for each `add evidence` row, append its sessions to `evidence.tsv` under that branch. For each project lesson, append to `project-lessons.tsv`.
+Then for each `add evidence` row, append its sessions to `evidence.tsv` under that branch. For each project lesson, append to `project-lessons.tsv`. Rewrite `candidates.tsv` from the synthesizer's Candidates list, dropping any slug that became a branch tonight.
 
 ## 6. Finish
 

@@ -17,7 +17,9 @@ const home = os.homedir();
 
 // Scheduled sweep and digest runs start with these markers; mining them would make the loop reflect on itself.
 const SELF = /\[lmerynda-(sweep|digest)\]/;
-const NOISE = /^(<|# AGENTS\.md|Caveat:|\[Request interrupted|This session is being continued|<command-|Base directory for this skill|You are judging|<environment_context>|<user_instructions>|<turn_aborted>)/;
+// Sessions another agent started (review councils, dispatched workers) open with a role brief, not a user prompt.
+const AGENT_BRIEF = /^(Act as |You are (a|an|the) )/;
+const NOISE = /^(<|# AGENTS\.md|Caveat:|\[Request interrupted|This session is being continued|<command-|Base directory for this skill|You are judging|<environment_context>|<user_instructions>|<turn_aborted>|Context handoff)/;
 
 function walk(d, pred, acc = []) {
   if (!fs.existsSync(d)) return acc;
@@ -47,7 +49,7 @@ function* claudeSession(events) {
     const c = o.message.content;
     const texts = typeof c === 'string' ? [c] : Array.isArray(c) ? c.filter(b => b.type === 'text').map(b => b.text) : [];
     if (o.type === 'assistant') { const t = clean(texts.join(' ')); if (t) prev = t; continue; }
-    if (o.type !== 'user' || o.isMeta) continue;
+    if (o.type !== 'user' || o.isMeta || (o.origin && o.origin.kind !== 'human')) continue;
     for (const t of texts) if (!NOISE.test(t.trim())) yield { ts: o.timestamp, text: clean(t), prev, cwd: o.cwd };
   }
 }
@@ -83,7 +85,7 @@ const sources = [
 ];
 
 const rows = [], next = { sessions: { ...state.sessions } };
-let skippedActive = 0, skippedSelf = 0;
+let skippedActive = 0, skippedSelf = 0, skippedAgent = 0;
 for (const { tool, f } of sources) {
   const mtime = fs.statSync(f).mtimeMs;
   if (mtime < since) continue;
@@ -93,6 +95,7 @@ for (const { tool, f } of sources) {
   const events = lines(f);
   const prompts = [...(tool === 'claude' ? claudeSession(events) : codexSession(events))];
   if (prompts.length && SELF.test(prompts[0].text)) { skippedSelf++; continue; }
+  if (prompts.length && AGENT_BRIEF.test(prompts[0].text)) { skippedAgent++; continue; }
   const project = tool === 'codex' ? codexProject(events) : path.basename(String((prompts.find(p => p.cwd) || {}).cwd || path.dirname(f)));
   const fresh = prompts.filter(p => p.text && Date.parse(p.ts) > mark);
   for (const p of fresh) rows.push({ tool, session: id, project, ts: p.ts, prev: p.prev.slice(0, 400), text: p.text.slice(0, 1500) });
@@ -106,4 +109,4 @@ fs.writeFileSync(args.out, args.out.endsWith('.tsv')
   : rows.map(r => JSON.stringify(r)).join('\n'));
 if (args.state) fs.writeFileSync(args.out + '.next-state.json', JSON.stringify(next, null, 1));
 const sessions = new Set(rows.map(r => r.session)).size;
-console.log(`${rows.length} prompts from ${sessions} sessions; skipped ${skippedActive} active, ${skippedSelf} sweep/digest runs`);
+console.log(`${rows.length} prompts from ${sessions} sessions; skipped ${skippedActive} active, ${skippedSelf} sweep/digest runs, ${skippedAgent} agent-started`);
