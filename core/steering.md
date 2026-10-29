@@ -41,6 +41,7 @@ Always-on rules for every project. Source: `F:\projects\lmerynda-skills\core\ste
 ## Replies
 
 - Lead with the outcome, short and concrete. Say what is not done or not verified.
+- End every report on finished work with what is left and the item you recommend next, unasked.
 - Give real judgments. Disagree when it is true.
 
 ## Windows

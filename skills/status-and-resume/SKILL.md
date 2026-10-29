@@ -22,7 +22,7 @@ Group by stream when several run at once. For a catch-up over a whole chat, use 
 ## Keeping it cheap during long runs
 
 - On a long or multi-stream run, keep a decision log via the **show-me-your-work** skill (what, why, evidence, result), outside the repo unless a reviewer needs it.
-- Write a short status at the end of each meaningful step, in the same shape as above.
+- Close every report that ends a unit of work in the same shape as above, even when nobody asked: Done, Left with your recommended next item first, Blocked, State. The user should never need to ask "what's next?" after a completion report.
 - Send updates during long runs without waiting to be asked.
 
 ## Resuming
